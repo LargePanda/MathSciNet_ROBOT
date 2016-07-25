@@ -28,6 +28,13 @@ def get_article_url(div):
 def get_article_desc(div):
     return get_desc(div)
 
+def get_article_authors(div):
+    authors = []
+    for author_link in div.findAll('a'):
+        href = author_link.get("href")
+        if "author" in href:
+            authors.append(href[40:])
+    return authors
 
 def find_papers_by_author_id(mid):
     if "MR" in mid:
@@ -40,14 +47,18 @@ def find_papers_by_author_id(mid):
     page = urllib2.urlopen(url).read()
     soup = BeautifulSoup.BeautifulSoup(page)
     divList = soup.findAll('div', attrs={ "class" : "headlineText"})
+    
     info_list = []
+    
     for div in divList:
         info = {}
         info['id'] = get_article_id(div)
         info['url'] = get_article_url(div)
+        info['authors'] = get_article_authors(div)
         info['description'] = get_article_desc(div)
         info['date'] = get_article_year(div)
         info_list.append(info)
+
     return info_list
 
 # sample:   
@@ -62,12 +73,14 @@ def find_parent_citations(mid):
     page = urllib2.urlopen(url).read()
     soup = BeautifulSoup.BeautifulSoup(page)
     divList = soup.findAll('div', attrs={ "class" : "headlineText"})
+    
     info_list = []
     
     for div in divList:
         info = {}
         info['id'] = get_article_id(div)
         info['url'] = get_article_url(div)
+        info['authors'] = get_article_authors(div)
         info['description'] = get_article_desc(div)
         info['date'] = get_article_year(div)
         info_list.append(info)
@@ -127,3 +140,5 @@ def get_desc(div):
     end_index = full_text.find('SFXButton')
     
     return clean_text(full_text[start_index: end_index])
+
+
